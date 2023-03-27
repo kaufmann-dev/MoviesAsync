@@ -1,11 +1,23 @@
-using Microsoft.AspNetCore.Components;
-using Microsoft.AspNetCore.Components.Web;
+using Domain.Repositories.Implementations;
+using Domain.Repositories.Interfaces;
+using Microsoft.EntityFrameworkCore;
+using Model.Configurations;
+using Model.Entities;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
+builder.Services.AddHttpClient();
+builder.Services.AddDbContext<ImdbContext>(
+    options => options.UseMySql(
+        builder.Configuration.GetConnectionString("DefaultConnection"), 
+        ServerVersion.Parse("8.0.27"), 
+        null
+    )
+);
+builder.Services.AddScoped<IMovieRepository, MovieRepository>();
 
 var app = builder.Build();
 

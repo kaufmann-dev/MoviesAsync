@@ -1,6 +1,84 @@
 ﻿@page "/"
-<h3>Movies</h3>
+@using Domain.Repositories.Interfaces
+@using Model.Entities
+
+@inject IMovieRepository _movieRepository
+@inject ILogger<Movies> _logger
+@inject IHttpClientFactory _clientFactory
+
+<div class="container">
+    <div class="mb-3">
+        <h1 class="display-1 d-inline">Movies</h1>
+        <NavLink href="createmovie" class="btn btn-primary btn-sm d-inline ms-3">Create Movie</NavLink>
+    </div>
+    
+    @if (string.IsNullOrWhiteSpace(ErrorMessage))
+    {
+        @if (MovieList is not null)
+        {
+            <table class="table table-striped">
+                <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Duration</th>
+                    <th>Description</th>
+                    <th>Release Date</th>
+                    <th>Remove</th>
+                </tr>
+                </thead>
+                <tbody>
+                @foreach (var movie in @MovieList)
+                {
+                    <tr>
+                        <td>@movie.Name</td>
+                        <td>@movie.Duration minutes</td>
+                        <td>@movie.ShortDescription</td>
+                        <td>@movie.ReleaseDate.ToString("MM/dd/yyyy")</td>
+                        <td><button class="btn btn-danger btn-sm" @onclick="@(() => Remove(movie))">Remove</button></td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        }
+        else
+        {
+            <span>... Loading</span>
+        }
+    }
+    else
+    {
+        <span>@ErrorMessage</span>
+    }
+</div>
+
 
 @code {
+    private List<Movie>? MovieList { get; set; }
+    private string? ErrorMessage { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        _logger.LogInformation("Initializing movie admin");
+
+        var request = new HttpRequestMessage (
+            HttpMethod.Get, "http://127.0.0.1:5099/movies"
+        );
+
+        var client = _clientFactory.CreateClient();
+        HttpResponseMessage response = await client.SendAsync(request);
+
+        if (response.IsSuccessStatusCode) {
+            MovieList = await response.Content.ReadFromJsonAsync<List<Movie>>();
+            ErrorMessage = null;
+        }
+        else {
+            ErrorMessage = $"An error occured: {response.ReasonPhrase}";
+        }
+    }
     
+    async Task Remove(Movie movie) {
+        var deleteTask = _movieRepository.DeleteAsync(movie);
+        var removeTask = Task.Run(() => MovieList.Remove(movie));
+        await Task.WhenAll(deleteTask, removeTask);
+    }
 }

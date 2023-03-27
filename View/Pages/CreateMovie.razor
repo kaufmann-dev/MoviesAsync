@@ -1,6 +1,108 @@
 ﻿@page "/createmovie"
-<h3>Create movie</h3>
+@using Domain.Repositories.Interfaces
+@using Microsoft.AspNetCore.Components
+@using Model.Entities
+@using System.Text.Json
+@using System.Text
+
+
+@inject IMovieRepository _movieRepository
+@inject ILogger<Movies> _logger
+@inject IHttpClientFactory _clientFactory
+@inject NavigationManager _navigation
+
+<div class="container">
+    <div class="mb-3">
+        <h1 class="display-1 d-inline">Create movie</h1>
+        <NavLink href="/" class="btn btn-primary btn-sm d-inline ms-3">All movies</NavLink>
+    </div>
+
+    @if (string.IsNullOrWhiteSpace(ErrorMessage))
+    {
+        <EditForm Model="NewMovie" OnValidSubmit="Create" class="form">
+            <DataAnnotationsValidator/>
+            <div class="mb-3">
+                <label for="movieTitle" class="form-label">Title</label>
+                <InputText class="form-control" id="movieTitle" placeholder="Matrix" @bind-Value="@NewMovie.Name"/>
+                <ValidationMessage style="font-size: small; margin-top: 4pt" For="() => NewMovie.Name"/>
+            </div>
+            <div class="mb-3">
+                <label for="movieGenre" class="form-label">Genre</label>
+                <InputSelect class="form-control" id="movieGenre" @bind-Value="@NewMovie.Genre">
+                    <option value="">Select genre ...</option>
+                    @foreach (var genre in Enum.GetValues<EGenre>())
+                    {
+                        <option value="@genre">@genre</option>
+                    }
+                </InputSelect>
+            </div>
+            <div class="mb-3">
+                <label for="movieShortDescription" class="form-label">Short description</label>
+                <InputTextArea class="form-control" id="movieShortDescription" rows="3" placeholder="When a beautiful stranger leads computer hacker Neo to a forbidding underworld, he discovers the shocking truth--the life he knows is the elaborate deception of an evil cyber-intelligence." @bind-Value="NewMovie.ShortDescription"/>
+                <ValidationMessage style="font-size: small; margin-top: 4pt" For="() => NewMovie.ShortDescription"/>
+            </div>
+            <div class="mb-3">
+                <label for="movieReleaseDate" class="form-label">Release date</label>
+                <InputDate class="form-control" id="movieReleaseDate" @bind-Value="@NewMovie.ReleaseDate"/>
+                <ValidationMessage style="font-size: small; margin-top: 4pt" For="() => NewMovie.ReleaseDate"/>
+            </div>
+
+            <div class="mb-3">
+                <label for="movieLength" class="form-label">Length (in minutes)</label>
+                <InputNumber class="form-control" id="movieLength" @bind-Value="@NewMovie.Duration"/>
+                <ValidationMessage style="font-size: small; margin-top: 4pt" For="() => NewMovie.Duration"/>
+            </div>
+            <div class="mb-3">
+                <label for="movieDirector" class="form-label">Director</label>
+                <InputText class="form-control" id="movieDirector" placeholder="Lilly Wachowski, Lana Wachowski" @bind-Value="@NewMovie.Director"/>
+                <ValidationMessage style="font-size: small; margin-top: 4pt" For="() => NewMovie.Director"/>
+            </div>
+            <div class="mb-3">
+                <label for="movieDescription" class="form-label">Description</label>
+                <InputTextArea class="form-control" id="movieDescription" rows="7" placeholder="The Matrix is a 1999 science fiction action film written and directed by the Wachowskis, starring Keanu Reeves, Laurence Fishburne, Carrie-Anne Moss, Joe Pantoliano, and Hugo Weaving. It was first released in the USA on March 31, 1999, and is the first entry in The Matrix series of films, comics, video games and animation. The film received four Academy Awards in the technical categories. The film describes a future in which reality perceived by humans is actually the Matrix, a simulated reality created by sentient Machines in order to pacify and subdue the human population while their bodies' heat and electrical activity are used as an energy source. Upon learning this, computer programmer 'Neo' is drawn into a rebellion against the Machines. The film contains numerous references to the cyberpunk and hacker subcultures; philosophical and religious ideas; and homages to Alice's Adventures in Wonderland, Hong Kong action movies, Spaghetti Westerns and Japanese animation." @bind-Value="NewMovie.Description"/>
+                <ValidationMessage style="font-size: small; margin-top: 4pt" For="() => NewMovie.Description"/>
+            </div>
+
+            <NavLink href="movies" class="btn btn-light">Cancel</NavLink>
+            <button class="btn btn-primary ms-2">Create</button>
+        </EditForm>
+    }
+    else
+    {
+        <span>@ErrorMessage</span>
+    }
+</div>
 
 @code {
-    
+    private Movie NewMovie { get; set; } = new Movie();
+    private string? ErrorMessage { get; set; }
+
+    async Task Create() {
+       
+        _logger.LogInformation("Creating movie");
+
+        // var request = new HttpRequestMessage(
+        //     HttpMethod.Post,
+        //     "http://127.0.0.1:5099/movies"
+        // )
+        // {
+        //     Content = new StringContent(JsonSerializer.Serialize(NewMovie), Encoding.UTF8, "application/json")
+        // };
+
+        var client = _clientFactory.CreateClient();
+        //HttpResponseMessage response = await client.SendAsync(request);
+        HttpResponseMessage response = await client.PostAsJsonAsync(
+            new Uri("http://127.0.0.1:5099/movies"),
+            NewMovie
+        );
+
+        if (response.IsSuccessStatusCode) {
+            _navigation.NavigateTo("/");
+        }
+        else {
+            ErrorMessage = $"An error occured: {response.ReasonPhrase}";
+            var errorContent = await response.Content.ReadAsStringAsync();
+            Console.WriteLine($"An error occurred: {errorContent}");
+        }
+    }
 }
