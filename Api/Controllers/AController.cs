@@ -17,8 +17,8 @@ public abstract class AController<TEntity> : ControllerBase where TEntity: class
     [HttpGet("{id:int}")]
     public async Task<ActionResult<TEntity?>> ReadAsync(int id) => Ok(await _repository.ReadAsync(id));
 
-    // [HttpGet]
-    // public async Task<ActionResult<List<TEntity>>> ReadAsync(int start, int count) => Ok(await _repository.ReadAsync(start, count));
+    [HttpGet("control")]
+    public async Task<ActionResult<List<TEntity>>> ReadAsync(int start, int count) => Ok(await _repository.ReadAsync(start, count));
 
     [HttpGet]
     public async Task<ActionResult<List<TEntity>>> ReadAllAsync() => Ok(await _repository.ReadAllAsync());
@@ -52,5 +52,4 @@ public abstract class AController<TEntity> : ControllerBase where TEntity: class
         
         return NoContent();
     }
-
 }
