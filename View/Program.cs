@@ -10,14 +10,6 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
 builder.Services.AddHttpClient();
-builder.Services.AddDbContext<ImdbContext>(
-    options => options.UseMySql(
-        builder.Configuration.GetConnectionString("DefaultConnection"), 
-        ServerVersion.Parse("8.0.27"), 
-        null
-    )
-);
-builder.Services.AddScoped<IMovieRepository, MovieRepository>();
 
 var app = builder.Build();
 

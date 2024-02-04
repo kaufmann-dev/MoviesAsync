@@ -2,7 +2,6 @@
 @using Domain.Repositories.Interfaces
 @using Model.Entities
 
-@inject IMovieRepository _movieRepository
 @inject ILogger<Movie> _logger
 @inject IHttpClientFactory _clientFactory
 
@@ -76,9 +75,24 @@
         }
     }
     
-    async Task Remove(Movie movie) {
-        var deleteTask = _movieRepository.DeleteAsync(movie);
-        var removeTask = Task.Run(() => MovieList.Remove(movie));
-        await Task.WhenAll(deleteTask, removeTask);
+    async Task Remove(Movie movie)
+    {
+        var request = new HttpRequestMessage(
+            HttpMethod.Delete, $"http://127.0.0.1:5099/movies/{movie.Id}"
+        );
+
+        var client = _clientFactory.CreateClient();
+        HttpResponseMessage response = await client.SendAsync(request);
+
+        if (response.IsSuccessStatusCode)
+        {
+            // Remove the movie from the local list
+            MovieList?.Remove(movie);
+            ErrorMessage = null;
+        }
+        else
+        {
+            ErrorMessage = $"An error occurred while deleting: {response.ReasonPhrase}";
+        }
     }
 }
