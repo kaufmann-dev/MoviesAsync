@@ -4,7 +4,7 @@ Things you need:
 * A MySql database
 * .NET 7 SDK (https://dotnet.microsoft.com/en-us/download/dotnet/7.0)
 
-## Tasks before building
+## Tasks before running the application
 ### `Api/appsettings.json` (Configure MySql Connection String)
 Rename `Api/appsettings.json.example` to `Api/appsettings.json` and update the connection string accordingly. For security purposes, this file is not included in the Git repository.
 
@@ -46,3 +46,7 @@ Before running the application, you need to create a migration and update your d
 
 ```dotnet ef --startup-project ../Api/ database update```
 
+### Running `Api` and `View`
+If you followed the previous steps, you are now ready to run the application.
+
+First, run the configuration `Api: http`. A Swagger application will now be available in the browser. After that, run the configuration `View: http`. The blazor site where you can create and take a look at all of your movies will now be available. Please note that it is important to run the Api first, as the View requires it.
