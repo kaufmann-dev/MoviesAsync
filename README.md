@@ -40,6 +40,8 @@ builder.Services.AddDbContextFactory<ImdbContext>(
 ### Create a migration and update the database
 Before running the application, you need to create a migration and update your database. In order to do so, execute the following commands.
 ```cd Api```
+
 ```dotnet ef --startup-project ../Api/ migrations add migration1```
+
 ```dotnet ef --startup-project ../Api/ database update```
 
