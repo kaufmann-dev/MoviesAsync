@@ -1,6 +1,6 @@
 # ImdbAsync
  
-Make sure to rename `appsettings.json.example` in the folder `View` to `appsettings.json` and update the credentials accordingly. For security purposes, this file is not included in the Git repository.
+Make sure to rename `appsettings.json.example` in the folder `Api` to `appsettings.json` and update the credentials accordingly. For security purposes, this file is not included in the Git repository.
 
 ```json
 {
