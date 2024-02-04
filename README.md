@@ -1,6 +1,6 @@
 # ImdbAsync
 Things you need:
-* dotnet-ef (Install: dotnet tool install --global dotnet-ef)
+* dotnet-ef (Install: `dotnet tool install --global dotnet-ef`)
 * A MySql database
 * .NET 7 SDK (https://dotnet.microsoft.com/en-us/download/dotnet/7.0)
 
